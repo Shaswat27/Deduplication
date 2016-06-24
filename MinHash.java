@@ -1,3 +1,5 @@
+package minhash;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,14 +9,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.tika.metadata.DublinCore;
  
 public class MinHash<T>
 {
     private int hash[];
     private int numHash;
- 
+     
     public MinHash(int numHash)
     {
         this.numHash = numHash;
@@ -40,7 +40,7 @@ public class MinHash<T>
         return computeSimilarityFromSignatures(minHashValues, numHash);
     }
  
-    private static int[][] initializeHashBuckets(int numSets,
+    private int[][] initializeHashBuckets(int numSets,
             int numHashFunctions)
     {
         int[][] minHashValues = new int[numSets][numHashFunctions];
@@ -54,7 +54,7 @@ public class MinHash<T>
         return minHashValues;
     }
  
-    private static double computeSimilarityFromSignatures(
+    private double computeSimilarityFromSignatures(
             int[][] minHashValues, int numHashFunctions)
     {
         int identicalMinHashes = 0;
@@ -68,7 +68,7 @@ public class MinHash<T>
         return (1.0 * identicalMinHashes) / numHashFunctions;
     }
  
-    private static int hash(int x, int a, int b, int c)
+    private int hash(int x, int a, int b, int c)
     {
         int hashValue = (int) ((a * (x >> 4) + b * x + c) & 131071);
         return Math.abs(hashValue);
@@ -80,26 +80,13 @@ public class MinHash<T>
         int index = 0;
         for (T element : bitArray.keySet())
         {
-            /*
-             * for every element in the bit array
-             */
             for (int i = 0; i < numHash; i++)
             {
-                /*
-                 * for every hash
-                 */
                 if (set.contains(element))
                 {
-                    /*
-                     * if the set contains the element
-                     */
                     int hindex = hash[index];
                     if (hindex < minHashValues[setIndex][index])
                     {
-                        /*
-                         * if current hash is smaller than the existing hash in
-                         * the slot then replace with the smaller hash value
-                         */
                         minHashValues[setIndex][i] = hindex;
                     }
                 }
@@ -119,19 +106,17 @@ public class MinHash<T>
         {
             if (bitArray.containsKey(t))
             {
-                // item is not present in set1
                 bitArray.put(t, new boolean[] { true, true });
             }
             else if (!bitArray.containsKey(t))
             {
-                // item is not present in set1
                 bitArray.put(t, new boolean[] { false, true });
             }
         }
         return bitArray;
     }
 
-    public static Set<String> createShinglesChar(String text, int charGramLength)
+    public Set<String> createShinglesChar(String text, int charGramLength)
     {
         Set<String> setShingles = new HashSet<String>();
         String processedString = text.toLowerCase();
@@ -176,7 +161,7 @@ public class MinHash<T>
         return setShingles;
     }
 
-    public static int wordCount(String field)
+    public int wordCount(String field)
     {
         Pattern pattern = Pattern.compile("\\w+");
         Matcher matcher = pattern.matcher(field);
@@ -186,34 +171,5 @@ public class MinHash<T>
             count = count+1;
         }
         return count;
-    }
- 
-    public static void main(String[] args)
-    {
-        String text1 = "P G Woodhouse";
-        String text2 = "Woodhouse P G";
-        String text3 = "Jerry Woodhouse";
-        
-        Set<String> set1 = (wordCount(text1)>10)?createShinglesWords(text1, 3):createShinglesWords(text1, 1);
-        Set<String> set2 = (wordCount(text2)>10)?createShinglesWords(text2, 3):createShinglesWords(text2, 1);
-        Set<String> set3 = (wordCount(text3)>10)?createShinglesWords(text3, 3):createShinglesWords(text3, 1);
-
-        System.out.println("Set1 : " + set1);
-        System.out.println("Set2 : " + set2);
-        System.out.println("Set3 : " + set3);
-
-        System.out.println();
-
-        MinHash<String> minHash1 = new MinHash<String>(set1.size() + set2.size());
-        System.out.println("Similarity between set1 and set2: " + minHash1.similarity(set1, set2));
-        System.out.println();
-
-        MinHash<String> minHash2 = new MinHash<String>(set2.size() + set3.size());
-        System.out.println("Similarity between set2 and set3: " + minHash2.similarity(set2, set3));
-        System.out.println();
-
-        MinHash<String> minHash3 = new MinHash<String>(set1.size() + set3.size());
-        System.out.println("Similarity between set1 and set3: " + minHash3.similarity(set1, set3));
-        System.out.println();
     }
 }
